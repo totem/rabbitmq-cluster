@@ -1,0 +1,4 @@
+[{rabbit, [
+    {loopback_users, []},
+    {cluster_nodes, {{"{"}}{{ if printf "/rabbitmq/nodes" | ls }}[{{ range $index, $value := printf "/rabbitmq/nodes/*" | getvs }}{{if $index }},{{ end }}'{{ $value }}'{{ end }}]{{ else }}[]{{ end }}, disc{{ "}}" }}
+]}].

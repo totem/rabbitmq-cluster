@@ -55,12 +55,14 @@ RUN chmod 550 /usr/sbin/confd-wrapper.sh
 ADD etc/confd /etc/confd
 
 ENV ETCD_URL 172.17.42.1:4001
-ENV ETCD_PROXY_BASE /totem
+ENV ETCD_RABBITMQ_BASE /totem
+ENV ETCD_YODA_BASE /yoda
+ENV NODE_PREFIX totem-rabbitmq
 
 # Define mount points.
-VOLUME ["/var/lib/rabbitmq/mnesia"]
+VOLUME ["/var/lib/rabbitmq"]
 
-EXPOSE 5672 15672 22
+EXPOSE 5672 15672 25672 22
 
 ENTRYPOINT ["/usr/local/bin/supervisord"]
 CMD ["-n"]

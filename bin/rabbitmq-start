@@ -1,5 +1,23 @@
-#!/bin/bash
+#!/bin/bash -lex
 
+ETCDCTL="etcdctl --peers $ETCD_URL"
 ulimit -n 1024
 chown -R rabbitmq:rabbitmq /var/lib/rabbitmq
+
+#Erlang Cookie
+$ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/cookie $(< /dev/urandom tr -dc A-Z-a-z-0-9 | head -c${1:-32};echo;) || echo "Utilizing existing cookie..."
+echo $($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/cookie) > /var/lib/rabbitmq/.erlang.cookie
+chmod 600 /var/lib/rabbitmq/.erlang.cookie
+chown rabbitmq:rabbitmq /var/lib/rabbitmq/.erlang.cookie
+
+# Check if nodename exists
+if [ ! -f /var/lib/rabbitmq/nodename ]; then
+    # Generate Persistent host file
+    NODE=${NODE_PREFIX}-$(< /dev/urandom tr -dc A-Z-a-z-0-9 | head -c${1:-10};echo;)
+    echo $NODE > /var/lib/rabbitmq/nodename
+fi
+
+# Set the nodename
+export RABBITMQ_NODENAME=$(cat /var/lib/rabbitmq/nodename)
+
 rabbitmq-server $@
