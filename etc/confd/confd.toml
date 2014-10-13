@@ -1,0 +1,9 @@
+confdir  = "/etc/confd"
+interval = 60
+prefix   = "/totem"
+nodes = [
+  "127.0.0.1:4001",
+]
+quiet = true
+debug = false
+verbose = false
