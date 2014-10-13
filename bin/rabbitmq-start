@@ -20,4 +20,7 @@ fi
 # Set the nodename
 export RABBITMQ_NODENAME=$(cat /var/lib/rabbitmq/nodename)
 
+# call "rabbitmqctl stop" when exiting
+trap "{ echo Stopping rabbitmq; rabbitmqctl stop; exit 0; }" EXIT
+
 rabbitmq-server $@
