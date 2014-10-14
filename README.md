@@ -23,7 +23,7 @@ at /data (you may choose different path). You may deploy all nodes at once using
 ```
 RABBITMQ_USER=<rabbitmq_user>
 RABBITMQ_PASSWORD=<rabbitmq_password>
-sudo docker run --rm -P -p 5672:5672 -p 15672:15672 -p 25672:25672 -p 35197:35197 -p 4369:4369 -p 44001:44001 --name node1 -e NODE_IP=$COREOS_PRIVATE_IPV4 -e RABBITMQ_USER=$RABBITMQ_USER -e RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD -v /data:/var/lib/rabbitmq  totem/rabbitmq-cluster
+sudo docker run --rm -P -p 5672:5672 -p 25672:25672 -p 4369:4369 -p 44001:44001 --name node1 -e NODE_IP=$COREOS_PRIVATE_IPV4 -e RABBITMQ_USER=$RABBITMQ_USER -e RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD -v /data:/var/lib/rabbitmq  totem/rabbitmq-cluster
 ```  
 
 where $COREOS_PRIVATE_IPV4 is the private IP address for the host. 
