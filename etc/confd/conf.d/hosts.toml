@@ -1,0 +1,9 @@
+[template]
+src   = "hosts.tmpl"
+dest  = "/etc/hosts"
+uid = 0
+gid = 0
+mode  = "0644"
+keys = [
+  "rabbitmq"
+]

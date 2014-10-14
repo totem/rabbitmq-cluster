@@ -7,5 +7,4 @@ mode  = "0644"
 keys = [
   "rabbitmq"
 ]
-check_cmd = "/bin/bash -c 'echo Skip Validation... 1>/var/log/rabbitmq-check.log 2>&1'"
-reload_cmd = "/usr/local/bin/supervisorctl restart rabbitmq-server"
+reload_cmd = "/usr/local/bin/rabbitmq-reload 1>/var/log/rabbitmq-reload 2>&1"

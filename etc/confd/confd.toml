@@ -1,5 +1,5 @@
 confdir  = "/etc/confd"
-interval = 60
+interval = 30
 prefix   = "/totem"
 nodes = [
   "127.0.0.1:4001",

@@ -1,0 +1,4 @@
+# Dynamic Host Entries. This is concatenated with /etc/hosts to form hosts.toml
+{{ if printf "/rabbitmq/nodes" | ls }}{{ range printf "/rabbitmq/nodes/*" | gets }}
+{{ .Value }} {{ .Key | base }}
+{{ end }}{{ end }}

@@ -1,0 +1,24 @@
+#!/bin/bash -el
+
+NODE=$(cat /var/lib/rabbitmq/nodename)
+ETCDCTL="etcdctl --peers $ETCD_URL"
+# Set the nodename
+export RABBITMQ_NODENAME=rabbit@${NODE}
+
+
+if [ ! -f /var/lib/rabbitmq/reset ]; then
+    if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/master $NODE; then
+        echo "I am master. Won't reset..."
+    else
+        rabbitmqctl stop_app
+        rabbitmqctl reset
+        supervisorctl stop rabbitmq-server
+        supervisorctl start rabbitmq-server
+    fi
+    touch /var/lib/rabbitmq/reset
+
+else
+    echo "Node is already reset. Skipping reload...."
+fi
+
+

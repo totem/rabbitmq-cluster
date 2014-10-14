@@ -41,18 +41,26 @@ RUN cp -f /tmp/etcd-$ETCDCTL_VERSION-linux-amd64/etcdctl /usr/local/bin
 RUN rm -rf /tmp/etcd-$ETCDCTL_VERSION-linux-amd64.tar.gz
 
 #Configure Rabbitmq
+# change erlang arg -sname to -name, which switches from short names to FQDN for erlang networking
+# RUN sed --follow-symlinks -ri 's/-sname \$\{RABBIT/-name \$\{RABBIT/' /usr/lib/rabbitmq/bin/rabbitmq-server
+# RUN sed --follow-symlinks -ri 's/-sname/-name/' /usr/lib/rabbitmq/bin/rabbitmqctl
 ADD bin/rabbitmq-start /usr/local/bin/
-RUN chmod +x /usr/local/bin/rabbitmq-start
+ADD bin/rabbitmq-reload /usr/local/bin/
+RUN chmod +x /usr/local/bin/rabbitmq-*
 
 #Supervisor Config
 RUN mkdir -p /var/log/supervisor
 ADD etc/supervisor /etc/supervisor
 RUN ln -sf /etc/supervisor/supervisord.conf /etc/supervisord.conf
+ADD bin/supervisord-wrapper.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/supervisord-wrapper.sh
 
 #Confd Defaults
-ADD ./bin/confd-wrapper.sh /usr/sbin/confd-wrapper.sh
-RUN chmod 550 /usr/sbin/confd-wrapper.sh
 ADD etc/confd /etc/confd
+
+#Configure Discover
+ADD bin/publish-node.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/publish-node.sh
 
 ENV ETCD_URL 172.17.42.1:4001
 ENV ETCD_RABBITMQ_BASE /totem
@@ -64,5 +72,4 @@ VOLUME ["/var/lib/rabbitmq"]
 
 EXPOSE 5672 15672 25672 22
 
-ENTRYPOINT ["/usr/local/bin/supervisord"]
-CMD ["-n"]
+ENTRYPOINT ["/usr/local/bin/supervisord-wrapper.sh"]
