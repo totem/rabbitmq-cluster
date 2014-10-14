@@ -18,9 +18,7 @@ In Testing
 
 ## Creating cluster (different machines)
 Assuming that there are 2 machines (machine-1, machine-2), with data directory
-at /data (you may choose different path).  You may deploy all nodes in the cluster
-by using command. Assuming that private IP address of each host is stored in 
-$COREOS_PRIVATE_IPV4
+at /data (you may choose different path). You may deploy all nodes at once using command:
 
 ```
 RABBITMQ_USER=<rabbitmq_user>
