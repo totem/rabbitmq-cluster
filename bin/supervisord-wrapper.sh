@@ -5,7 +5,7 @@ ETCDCTL="etcdctl --peers $ETCD_URL"
 # Check if nodename exists. If not create a new node
 if [ ! -f /var/lib/rabbitmq/nodename ]; then
     # Generate Persistent host file
-    NODE=${NODE_PREFIX}-$(< /dev/urandom tr -dc A-Z-a-z-0-9 | head -c${1:-10};echo;)
+    NODE=${NODE:-${NODE_PREFIX}-$(< /dev/urandom tr -dc A-Z-a-z-0-9 | head -c${1:-10};echo;)}
     echo $NODE > /var/lib/rabbitmq/nodename
 fi
 NODE=$(cat /var/lib/rabbitmq/nodename)
@@ -27,8 +27,16 @@ echo $($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/cookie) > /var/lib/rabbitmq/.er
 chmod 600 /var/lib/rabbitmq/.erlang.cookie
 
 
-echo "Ensure that attached volume is owned by rabbitmq"
+echo "Changing owner for attached volume to rabbitmq"
 chown -R rabbitmq:rabbitmq /var/lib/rabbitmq
+
+echo "Updating environment file"
+cat <<END>> /etc/environment
+ETCDCTL=$ETCDCTL
+ETCD_RABBITMQ_BASE=$ETCD_RABBITMQ_BASE
+NODE=$NODE
+RABBITMQ_NODENAME=rabbit@$NODE
+END
 
 echo "Starting supervisord"
 supervisord -n

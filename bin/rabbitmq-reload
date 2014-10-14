@@ -4,11 +4,20 @@ NODE=$(cat /var/lib/rabbitmq/nodename)
 ETCDCTL="etcdctl --peers $ETCD_URL"
 # Set the nodename
 export RABBITMQ_NODENAME=rabbit@${NODE}
+export RABBITMQ_USER=${RABBITMQ_USER:-rabbitmq}
+export RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-rabbitmq}
+export RABBITMQ_CLUSTER_NAME=${RABBITMQ_CLUSTER_NAME:-totem}
+
 
 
 if [ ! -f /var/lib/rabbitmq/reset ]; then
-    if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/master $NODE; then
-        echo "I am master. Won't reset..."
+    if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
+        echo "Initializing seed config..."
+        # Queues beginning with ha.* are highly available
+        rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
+        rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all"}'
+        rabbitmqctl add_user ${RABBITMQ_USER} ${RABBITMQ_PASSWORD}
+        rabbitmqctl set_permissions -p / ${RABBITMQ_USER} ".*" ".*" ".*"
     else
         rabbitmqctl stop_app
         rabbitmqctl reset
@@ -16,9 +25,10 @@ if [ ! -f /var/lib/rabbitmq/reset ]; then
         supervisorctl start rabbitmq-server
     fi
     touch /var/lib/rabbitmq/reset
-
-else
-    echo "Node is already reset. Skipping reload...."
 fi
+
+echo "Cluster Initialized...."
+
+
 
 
