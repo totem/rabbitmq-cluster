@@ -7,4 +7,4 @@ mode  = "0644"
 keys = [
   "rabbitmq"
 ]
-reload_cmd = "/usr/local/bin/rabbitmq-reload 1>/var/log/rabbitmq-reload 2>&1"
+reload_cmd = "/usr/local/bin/rabbitmq-reload"
