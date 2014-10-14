@@ -58,6 +58,9 @@ RUN chmod +x /usr/local/bin/supervisord-wrapper.sh
 #Confd Defaults
 ADD etc/confd /etc/confd
 
+# Addition Syslog config
+# ADD etc/rsyslog.d/20-rabbitmq.conf /etc/rsyslog.d/
+
 #Configure Discover
 ADD bin/publish-node.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/publish-node.sh

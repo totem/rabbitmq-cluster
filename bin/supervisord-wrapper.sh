@@ -17,6 +17,7 @@ cat /etc/hosts /etc/confd/templates/hosts.dynamic.tmpl > /etc/confd/templates/ho
 
 echo "Modifying Syslog entries..."
 $ETCDCTL get $ETCD_RABBITMQ_BASE/syslog/host || $ETCDCTL set $ETCD_RABBITMQ_BASE/syslog/host ""
+# sed -i -e "s/{NODE}/${NODE}/g" -e "s/{RABBITMQ_CLUSTER_NAME}/${RABBITMQ_CLUSTER_NAME}/g" /etc/rsyslog.d/20-rabbitmq.conf
 
 echo "Modify confd settings (ETCD_URL, ETCD_RABBITMQ_BASE)"
 sed -i -e "s/127.0.0.1[:]4001/$ETCD_URL/g" -e "s|/totem|$ETCD_RABBITMQ_BASE|g" /etc/confd/confd.toml
@@ -36,6 +37,7 @@ ETCDCTL=$ETCDCTL
 ETCD_RABBITMQ_BASE=$ETCD_RABBITMQ_BASE
 NODE=$NODE
 RABBITMQ_NODENAME=rabbit@$NODE
+RABBITMQ_CLUSTER_NAME=${RABBITMQ_CLUSTER_NAME}
 END
 
 echo "Starting supervisord"
