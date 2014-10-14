@@ -1,4 +1,8 @@
 [{rabbit, [
     {loopback_users, []},
-    {cluster_nodes, {{"{"}}{{ if printf "/rabbitmq/nodes" | ls }}[{{ range $index, $node := printf "/rabbitmq/nodes/*" | gets }}{{if $index }},{{ end }}'rabbit@{{ $node.Key | base  }}'{{ end }}]{{ else }}[]{{ end }}, disc{{ "}}" }}
+    {cluster_nodes, {{"{"}}{{ if printf "/rabbitmq/nodes" | ls }}[{{ range $index, $node := printf "/rabbitmq/nodes/*" | gets }}{{if $index }},{{ end }}'rabbit@{{ $node.Key | base  }}'{{ end }}]{{ else }}[]{{ end }}, disc{{ "}}" }},
+    {kernel, [
+        {inet_dist_listen_max, 44001},
+        {inet_dist_listen_min, 44001}
+    ]}
 ]}].

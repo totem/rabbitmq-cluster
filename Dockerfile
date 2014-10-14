@@ -70,6 +70,6 @@ ENV RABBITMQ_CLUSTER_NAME totem
 # Define mount points.
 VOLUME ["/var/lib/rabbitmq"]
 
-EXPOSE 5672 15672 25672 35197 4369 22
+EXPOSE 5672 44001 15672 25672 35197 4369 22
 
 ENTRYPOINT ["/usr/local/bin/supervisord-wrapper.sh"]
