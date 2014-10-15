@@ -30,7 +30,7 @@ if [ -z $ERLANG_COOKIE ]; then
     echo "ERROR: Erlang cookie was found empty. Can not continue...."
     exit 10
 fi
-echo $ERLANG_COOKIE > /var/lib/rabbitmq/.erlang.cookie
+echo "$ERLANG_COOKIE" > /var/lib/rabbitmq/.erlang.cookie
 chmod 600 /var/lib/rabbitmq/.erlang.cookie
 
 
