@@ -23,8 +23,13 @@ echo "Modify confd settings (ETCD_URL, ETCD_RABBITMQ_BASE)"
 sed -i -e "s/127.0.0.1[:]4001/$ETCD_URL/g" -e "s|/totem|$ETCD_RABBITMQ_BASE|g" /etc/confd/confd.toml
 
 echo "Check/Create Erlang Cookie (For RabbitMq cluster)"
+
 $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/cookie $(< /dev/urandom tr -dc A-Z-a-z-0-9 | head -c${1:-32};echo;) || echo "Utilizing existing cookie..."
-echo $($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/cookie) > /var/lib/rabbitmq/.erlang.cookie
+ERLANG_COOKIE=$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/cookie)
+if [ -z $ERLANG_COOKIE ]; then
+    echo "ERROR: Erlang cookie was found empty. Can not continue...."
+    exit 10
+fi
 chmod 600 /var/lib/rabbitmq/.erlang.cookie
 
 
