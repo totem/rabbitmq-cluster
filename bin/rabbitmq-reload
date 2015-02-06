@@ -1,4 +1,4 @@
-#!/bin/bash -elx
+#!/bin/bash -el
 
 NODE=$(cat /var/lib/rabbitmq/nodename)
 ETCDCTL="etcdctl --peers $ETCD_URL"
