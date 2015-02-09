@@ -18,6 +18,7 @@ if [ ! -f /var/lib/rabbitmq/reset ]; then
         rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all"}'
         rabbitmqctl add_user ${RABBITMQ_USER} ${RABBITMQ_PASSWORD}
         rabbitmqctl set_permissions -p / ${RABBITMQ_USER} ".*" ".*" ".*"
+        rabbitmqctl set_user_tags ${RABBITMQ_USER} monitoring
     else
         rabbitmqctl stop_app
         rabbitmqctl reset
