@@ -13,6 +13,8 @@ export RABBITMQ_CLUSTER_NAME=${RABBITMQ_CLUSTER_NAME:-totem}
 if [ ! -f /var/lib/rabbitmq/reset ]; then
     if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
         echo "Initializing seed config..."
+        # Give some time time for startup. (Need better way to handle this.)
+        sleep 10s
         # Queues beginning with ha.* are highly available
         rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
         rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all"}'
