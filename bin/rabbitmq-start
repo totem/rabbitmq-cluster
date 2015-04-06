@@ -1,4 +1,4 @@
-#!/bin/bash -lex
+#!/bin/bash -le
 
 ETCDCTL="etcdctl --peers $ETCD_URL"
 ulimit -n 1024
