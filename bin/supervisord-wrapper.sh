@@ -1,4 +1,4 @@
-#!/bin/sh -le
+#!/bin/sh -e
 
 ETCDCTL="etcdctl --peers $ETCD_URL"
 
