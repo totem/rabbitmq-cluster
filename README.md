@@ -1,4 +1,4 @@
-# rabbitmq-cluster [![](https://badge.imagelayers.io/totem/rabbitmq-cluster.svg)](https://imagelayers.io/?images=totem/rabbitmq-cluster:develop 'Get your own badge on imagelayers.io')
+# rabbitmq-cluster [![](https://badge.imagelayers.io/totem/rabbitmq-cluster:develop.svg)](https://imagelayers.io/?images=totem/rabbitmq-cluster:develop 'Get your own badge on imagelayers.io')
 
 Rabbitmq Cluster using Docker.
 
