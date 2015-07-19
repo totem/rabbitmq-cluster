@@ -1,6 +1,11 @@
 #!/bin/sh -le
 
 ETCDCTL="etcdctl --peers $ETCD_URL"
+export ETCD_URL="${ETCD_URL:-172.17.42.1:4001}"
+export ETCD_RABBITMQ_BASE="${ETCD_RABBITMQ_BASE:-/totem}"
+export NODE_PREFIX="${NODE_PREFIX:-totem-rabbitmq}"
+export RABBITMQ_CLUSTER_NAME="${RABBITMQ_CLUSTER_NAME:-totem}"
+export LOG_IDENTIFIER="${LOG_IDENTIFIER:-rabbitmq-cluster}"
 
 # Check if nodename exists. If not create a new node
 if [ ! -f /var/lib/rabbitmq/nodename ]; then
