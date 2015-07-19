@@ -1,4 +1,4 @@
-#!/bin/sh -le
+#!/bin/sh -e
 
 ETCDCTL="etcdctl --peers $ETCD_URL"
 export ETCD_URL="${ETCD_URL:-172.17.42.1:4001}"
