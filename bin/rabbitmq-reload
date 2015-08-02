@@ -1,7 +1,5 @@
 #!/bin/bash -el
 
-source /utils.sh
-
 NODE=$(cat /var/lib/rabbitmq/nodename)
 ETCDCTL="etcdctl --peers $ETCD_URL"
 # Set the nodename
