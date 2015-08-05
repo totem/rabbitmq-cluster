@@ -1,9 +1,9 @@
-FROM totem/python-base:3.4-trusty
+FROM totem/python-base:3.4-trusty-b2
 
 ENV DEBIAN_FRONTEND noninteractive
 
 #Install Supervisor
-RUN pip install supervisor==3.1.2
+RUN pip install supervisor==3.1.2 supervisor-stdout
 
 # Install RabbitMQ.
 RUN \
@@ -11,7 +11,8 @@ RUN \
   echo "deb http://www.rabbitmq.com/debian/ testing main" > /etc/apt/sources.list.d/rabbitmq.list && \
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y rabbitmq-server && \
-  rm -rf /var/lib/apt/lists/* && \
+  apt-get clean && \
+  rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* && \
   rabbitmq-plugins enable rabbitmq_management && \
   echo "[{rabbit, [{loopback_users, []}]}]." > /etc/rabbitmq/rabbitmq.config
 
@@ -33,29 +34,18 @@ RUN sed --follow-symlinks \
     -e 's/-rabbit sasl_error_logger.*/-rabbit sasl_error_logger tty \\/' \
     -e 's/-sasl sasl_error_logger.*/-sasl sasl_error_logger tty \\/' \
     -i  /usr/lib/rabbitmq/bin/rabbitmq-server
-ADD bin/rabbitmq-start /usr/local/bin/
-ADD bin/rabbitmq-reload /usr/local/bin/
-RUN chmod +x /usr/local/bin/rabbitmq-*
 
 #Supervisor Config
 RUN mkdir -p /var/log/supervisor
 ADD etc/supervisor /etc/supervisor
 RUN ln -sf /etc/supervisor/supervisord.conf /etc/supervisord.conf
-ADD bin/supervisord-wrapper.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/supervisord-wrapper.sh
 
 #Confd Defaults
 ADD etc/confd /etc/confd
 
-#Configure Discover
-ADD bin/publish-node.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/publish-node.sh
-
-ENV ETCD_URL 172.17.42.1:4001
-ENV ETCD_RABBITMQ_BASE /totem
-ENV NODE_PREFIX totem-rabbitmq
-ENV RABBITMQ_CLUSTER_NAME totem
-ENV LOG_IDENTIFIER rabbitmq-cluster
+#Add custom scipts
+ADD bin /usr/local/bin
+RUN chmod -R +x /usr/local/bin
 
 # Define mount points.
 VOLUME ["/var/lib/rabbitmq"]
