@@ -50,7 +50,7 @@ LOG_IDENTIFIER=${LOG_IDENTIFIER}
 END
 
 echo "Registering shutdown hook prior to shutdown"
-trap "{ echo Stopping supervisor; kill -s SIGTERM $(cat /var/run/supervisord.pid) }" EXIT
+trap '{ echo Stopping supervisor; kill -s SIGTERM $(cat /var/run/supervisord.pid) }' EXIT
 
 echo "Starting supervisord"
 supervisord -n
