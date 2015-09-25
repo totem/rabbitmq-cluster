@@ -16,11 +16,12 @@ if [ ! -f /var/lib/rabbitmq/reset ]; then
         # Give some time time for startup. (Need better way to handle this.)
         sleep 10s
         # Queues beginning with ha.* are highly available
+        rabbitmqctl delete_user guest
         rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
         rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all"}'
         rabbitmqctl add_user ${RABBITMQ_USER} ${RABBITMQ_PASSWORD}
         rabbitmqctl set_permissions -p / ${RABBITMQ_USER} ".*" ".*" ".*"
-        rabbitmqctl set_user_tags ${RABBITMQ_USER} monitoring
+        rabbitmqctl set_user_tags ${RABBITMQ_USER} administrator
     else
         rabbitmqctl stop_app
         rabbitmqctl reset
