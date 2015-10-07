@@ -50,7 +50,7 @@ LOG_IDENTIFIER=${LOG_IDENTIFIER}
 END
 
 echo "Registering shutdown hook prior to shutdown"
-function shutdown() {
+function shutdown {
     set +e;
     echo Stopping supervisor; 
     kill -s SIGTERM "$(cat /var/run/supervisord.pid)";
