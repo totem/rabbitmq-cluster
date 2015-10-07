@@ -49,5 +49,14 @@ RABBITMQ_CLUSTER_NAME=${RABBITMQ_CLUSTER_NAME}
 LOG_IDENTIFIER=${LOG_IDENTIFIER}
 END
 
+echo "Registering shutdown hook prior to shutdown"
+shutdown () {
+    set +e;
+    echo Stopping supervisor; 
+    kill -s SIGTERM "$(cat /var/run/supervisord.pid)";
+    exit 0
+}
+trap 'shutdown' EXIT
+
 echo "Starting supervisord"
 supervisord -n
