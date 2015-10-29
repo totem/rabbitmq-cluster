@@ -7,7 +7,7 @@ PUBLISH_NODE_TTL=${PUBLISH_NODE_TTL:-120}
 PUBLISH_NODE_POLL=${PUBLISH_NODE_POLL:-60s}
 
 NODE=$(cat /var/lib/rabbitmq/nodename)
-HOST_IP=$(hostname -I | tr -d '[[:space:]]')
+HOST_IP=${HOST_IP:-$(hostname -I | tr -d '[[:space:]]')}
 
 while supervisorctl status rabbitmq-server | grep 'RUNNING'
 do
