@@ -18,7 +18,7 @@ if [ ! -f /var/lib/rabbitmq/reset ]; then
         # Queues beginning with ha.* are highly available
         rabbitmqctl delete_user guest
         rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
-        rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all"}'
+        rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all", "ha-sync-mode":"automatic"}'
         rabbitmqctl add_user ${RABBITMQ_USER} ${RABBITMQ_PASSWORD}
         rabbitmqctl set_permissions -p / ${RABBITMQ_USER} ".*" ".*" ".*"
         rabbitmqctl set_user_tags ${RABBITMQ_USER} administrator
