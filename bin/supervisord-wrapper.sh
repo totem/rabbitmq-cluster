@@ -41,7 +41,8 @@ chown -R rabbitmq:rabbitmq /var/lib/rabbitmq
 
 echo "Updating environment file"
 cat <<END>> /etc/environment
-ETCDCTL=$ETCDCTL
+ETCDCTL="$ETCDCTL"
+ETCD_URL="$ETCD_URL"
 ETCD_RABBITMQ_BASE=$ETCD_RABBITMQ_BASE
 NODE=$NODE
 RABBITMQ_NODENAME=rabbit@$NODE
