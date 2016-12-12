@@ -9,7 +9,7 @@ export RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-rabbitmq}
 export RABBITMQ_CLUSTER_NAME=${RABBITMQ_CLUSTER_NAME:-totem}
 
 
-if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE)" == 'true' ] || [ ! -f /var/lib/rabbitmq/reset ]; then
+if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE)" == 'true' ] || [ -f /var/lib/rabbitmq/reset ]; then
   # Note:  check for /var/lib/rabbitmq/reset is deprecated and is added for backward compatability
   if [ -f /var/lib/rabbitmq/reset ]; then
     # Remove the deprecated file as we no longer need it.
