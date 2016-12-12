@@ -39,7 +39,7 @@ else
   # Ensure that we are not publishing non-seed node yet.
   supervisorctl stop publish-node
   seed="$($ETCDCTL get /totem/rabbitmq/seed)"
-  while [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$seed)" != 'true' ]; then
+  while [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$seed)" != 'true' ]; do
     echo "Waiting for seed node initialization..."
     sleep 10s
   done
