@@ -44,7 +44,7 @@ else
     sleep 10s
   done
     
-  if ! etcdctl mk $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE false; then
+  if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE false; then
     echo "Another process is already trying to initialize this node. Skipping initialization"
     exit 0;
   fi
