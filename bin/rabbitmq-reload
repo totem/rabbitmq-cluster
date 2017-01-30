@@ -23,7 +23,7 @@ fi
 
 if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
   # Give some time time for inital startup. (Need better way to handle this.)
-  sleep 10s
+  sleep 15s
 
   # Queues beginning with ha.* are highly available
   echo "Initializing cluster (I am seed node)..."
@@ -42,7 +42,7 @@ else
   seed="$($ETCDCTL get /totem/rabbitmq/seed)"
   while [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$seed)" != 'true' ]; do
     echo "Waiting for seed node initialization..."
-    sleep 10s
+    sleep 60s
   done
     
   if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE false; then
@@ -52,13 +52,12 @@ else
     
     
   # Give some time time for startup. (Need better way to handle this.)
-  sleep 10s
+  sleep 15s
   echo "Resetting seed node (node not initialized) ..."
   rabbitmqctl stop_app
   rabbitmqctl reset
   # Restart Rabbitmq
-  supervisorctl stop rabbitmq-server
-  supervisorctl start rabbitmq-server
+  rabbitmqctl start_app
   supervisorctl start publish-node
 fi
 
