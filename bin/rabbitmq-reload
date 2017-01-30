@@ -18,15 +18,6 @@ fi
 if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)" ==  "$NODE" ]; then
   # Give some time time for inital startup. (Need better way to handle this.)
   sleep 15s
-
-  # Queues beginning with ha.* are highly available
-  echo "Initializing cluster (I am seed node)..."
-  (supervisorctl stop rabbitmq-server && \
-   sleep 40s && \
-   rabbitmqctl force_boot && \
-   supervisorctl start rabbitmq-server) || echo 'Skip force restart'
-  sleep 15s
-  
   rabbitmqctl delete_user guest || echo 'Skip deletion of guest account. Probably deleted before.'
   rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
   rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all", "ha-sync-mode":"automatic"}'
@@ -41,14 +32,8 @@ else
   fi
   # Ensure that we are not publishing non-seed node yet.
   supervisorctl stop publish-node
-    
   # Give some time time for startup. (Need better way to handle this.)
   sleep 15s
-  
-  echo "Resetting non-seed node (node not initialized) ..."
-  rabbitmqctl stop_app
-  rabbitmqctl force_reset
-  rabbitmqctl start_app
   supervisorctl start publish-node
 fi
 
