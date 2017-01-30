@@ -9,6 +9,12 @@ export LOG_IDENTIFIER="${LOG_IDENTIFIER:-rabbitmq-cluster}"
 
 ETCDCTL="etcdctl --peers $ETCD_URL"
 
+if ! $ETCDCTL cluster-health | grep 'cluster is healthy'; then
+  echo "ERROR: Etcd cluster is not healthy. Supervisord-wrapper can not start. Command failed $ETCDCTL cluster-health."
+  exit 1;
+fi
+
+
 # Check if nodename exists. If not create a new node
 if [ ! -f /var/lib/rabbitmq/nodename ]; then
     # Generate Persistent host file
