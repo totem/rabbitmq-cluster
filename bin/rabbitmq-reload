@@ -27,7 +27,11 @@ if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)" ==  "$NODE" ]; then
 
   # Queues beginning with ha.* are highly available
   echo "Initializing cluster (I am seed node)..."
-  (supervisorctl stop rabbitmq-server && rabbitmqctl force_boot && supervisorctl start rabbitmq-server) || echo 'Skip force restart'
+  (supervisorctl stop rabbitmq-server && \
+   sleep 5s && \
+   rabbitmqctl force_boot && \
+   supervisorctl start rabbitmq-server) || echo 'Skip force restart'
+  sleep 15s
   
   rabbitmqctl delete_user guest || echo 'Skip deletion of guest account. Probably deleted before.'
   rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
@@ -45,8 +49,13 @@ else
   fi
     
   # Give some time time for startup. (Need better way to handle this.)
-  (supervisorctl stop rabbitmq-server && rabbitmqctl force_boot && supervisorctl start rabbitmq-server) || echo 'Skip force restart'
   sleep 15s
+  (supervisorctl stop rabbitmq-server && \
+   sleep 5s && \
+   rabbitmqctl force_boot && \
+   supervisorctl start rabbitmq-server) || echo 'Skip force restart'
+  sleep 15s
+  
   echo "Resetting non-seed node (node not initialized) ..."
   rabbitmqctl stop_app
   rabbitmqctl force_reset
