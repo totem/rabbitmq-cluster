@@ -27,6 +27,8 @@ if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
 
   # Queues beginning with ha.* are highly available
   echo "Initializing cluster (I am seed node)..."
+  (rabbitmqctl force_boot && rabbitmqctl start_app) || echo 'Skip start_app (probably already running)'
+  
   rabbitmqctl delete_user guest || echo 'Skip deletion of guest account. Probably deleted before.'
   rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
   rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all", "ha-sync-mode":"automatic"}'
@@ -52,11 +54,11 @@ else
     
     
   # Give some time time for startup. (Need better way to handle this.)
+  (rabbitmqctl force_boot && rabbitmqctl start_app) || echo 'Skip start_app (probably already running)'
   sleep 15s
-  echo "Resetting seed node (node not initialized) ..."
+  echo "Resetting non-seed node (node not initialized) ..."
   rabbitmqctl stop_app
-  rabbitmqctl reset
-  # Restart Rabbitmq
+  rabbitmqctl force_reset
   rabbitmqctl start_app
   supervisorctl start publish-node
 fi
