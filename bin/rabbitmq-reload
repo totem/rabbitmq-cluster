@@ -9,13 +9,7 @@ export RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-rabbitmq}
 export RABBITMQ_CLUSTER_NAME=${RABBITMQ_CLUSTER_NAME:-totem}
 
 
-if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE)" == 'true' ] || [ -f /var/lib/rabbitmq/reset ]; then
-  # Note:  check for /var/lib/rabbitmq/reset is deprecated and is added for backward compatability
-  if [ -f /var/lib/rabbitmq/reset ]; then
-    # Remove the deprecated file as we no longer need it.
-    rm /var/lib/rabbitmq/reset
-    $ETCDCTL set $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE true
-  fi
+if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE)" == 'true' ]; then
   echo "Node is already initialized. Skipping reload."
   exit 0
 fi
@@ -28,7 +22,7 @@ if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)" ==  "$NODE" ]; then
   # Queues beginning with ha.* are highly available
   echo "Initializing cluster (I am seed node)..."
   (supervisorctl stop rabbitmq-server && \
-   sleep 60s && \
+   sleep 40s && \
    rabbitmqctl force_boot && \
    supervisorctl start rabbitmq-server) || echo 'Skip force restart'
   sleep 15s
@@ -41,19 +35,14 @@ if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)" ==  "$NODE" ]; then
   rabbitmqctl set_user_tags ${RABBITMQ_USER} administrator
   echo "Cluster Initialized."
 else
-  # Ensure that we are not publishing non-seed node yet.
-  supervisorctl stop publish-node
   if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE false; then
     echo "Another process is already trying to initialize this node. Skipping initialization"
     exit 0;
   fi
+  # Ensure that we are not publishing non-seed node yet.
+  supervisorctl stop publish-node
     
   # Give some time time for startup. (Need better way to handle this.)
-  sleep 15s
-  (supervisorctl stop rabbitmq-server && \
-   sleep 60s && \
-   rabbitmqctl force_boot && \
-   supervisorctl start rabbitmq-server) || echo 'Skip force restart'
   sleep 15s
   
   echo "Resetting non-seed node (node not initialized) ..."
