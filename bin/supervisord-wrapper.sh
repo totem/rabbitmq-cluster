@@ -59,5 +59,14 @@ shutdown () {
 }
 trap 'shutdown' EXIT
 
+seed="$($ETCDCTL get /totem/rabbitmq/seed)"
+if [ "$seed" !=  "$NODE" ]; then
+  while [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$seed)" != 'true' ]; do
+    echo "Waiting for seed node initialization..."
+    sleep 60s
+  done
+fi
+
+  
 echo "Starting supervisord"
 supervisord -n
