@@ -21,7 +21,7 @@ if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE)" == 'true' 
 fi
 
 
-if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
+if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)" ==  "$NODE" ]; then
   # Give some time time for inital startup. (Need better way to handle this.)
   sleep 15s
 
@@ -36,22 +36,13 @@ if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
   rabbitmqctl set_permissions -p / ${RABBITMQ_USER} ".*" ".*" ".*"
   rabbitmqctl set_user_tags ${RABBITMQ_USER} administrator
   echo "Cluster Initialized."
-elif [ "$($ETCDCTL get /totem/rabbitmq/seed)" ==  "$NODE" ]; then
-  echo "Seed node initialization already in process. Skipping reload."
 else
   # Ensure that we are not publishing non-seed node yet.
   supervisorctl stop publish-node
-  seed="$($ETCDCTL get /totem/rabbitmq/seed)"
-  while [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$seed)" != 'true' ]; do
-    echo "Waiting for seed node initialization..."
-    sleep 60s
-  done
-    
   if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE false; then
     echo "Another process is already trying to initialize this node. Skipping initialization"
     exit 0;
   fi
-    
     
   # Give some time time for startup. (Need better way to handle this.)
   (rabbitmqctl force_boot && rabbitmqctl start_app) || echo 'Skip start_app (probably already running)'
