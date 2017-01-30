@@ -70,11 +70,12 @@ if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
     rm /var/lib/rabbitmq/reset
     $ETCDCTL set $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE true
   fi 
-  
-  if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE || echo 'false' )" != 'true' ]; then
-    echo "Removing mnesia folder as the seed node was reset..."
-    rm -rf /var/lib/rabbitmq/mnesia
-  fi
+ 
+fi
+
+if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE || echo 'false' )" != 'true' ]; then
+  echo "Removing mnesia folder as the node is not initialized..."
+  rm -rf /var/lib/rabbitmq/mnesia
 fi
 
   
