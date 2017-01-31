@@ -9,6 +9,12 @@ export LOG_IDENTIFIER="${LOG_IDENTIFIER:-rabbitmq-cluster}"
 
 ETCDCTL="etcdctl --peers $ETCD_URL"
 
+if ! $ETCDCTL cluster-health | grep 'cluster is healthy'; then
+  echo "ERROR: Etcd cluster is not healthy. Supervisord-wrapper can not start. Command failed $ETCDCTL cluster-health."
+  exit 1;
+fi
+
+
 # Check if nodename exists. If not create a new node
 if [ ! -f /var/lib/rabbitmq/nodename ]; then
     # Generate Persistent host file
@@ -41,7 +47,8 @@ chown -R rabbitmq:rabbitmq /var/lib/rabbitmq
 
 echo "Updating environment file"
 cat <<END>> /etc/environment
-ETCDCTL=$ETCDCTL
+ETCDCTL="$ETCDCTL"
+ETCD_URL="$ETCD_URL"
 ETCD_RABBITMQ_BASE=$ETCD_RABBITMQ_BASE
 NODE=$NODE
 RABBITMQ_NODENAME=rabbit@$NODE
@@ -58,5 +65,25 @@ shutdown () {
 }
 trap 'shutdown' EXIT
 
+if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
+  seed="$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)"
+  while [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$seed)" != 'true' ]; do
+    echo "Waiting for seed node initialization..."
+    sleep 60s
+  done
+fi
+
+if [ -f /var/lib/rabbitmq/reset ]; then
+    # Remove the deprecated file as we no longer need it.
+    rm /var/lib/rabbitmq/reset
+    $ETCDCTL set $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE true
+  fi 
+
+if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE || echo 'false' )" != 'true' ]; then
+  echo "Removing mnesia folder as the node is not initialized..."
+  rm -rf /var/lib/rabbitmq/mnesia
+fi
+
+  
 echo "Starting supervisord"
 supervisord -n

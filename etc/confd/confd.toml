@@ -2,7 +2,7 @@ confdir  = "/etc/confd"
 interval = 30
 prefix   = "/totem"
 nodes = [
-  "127.0.0.1:4001",
+  "http://127.0.0.1:4001",
 ]
 quiet = true
 debug = false

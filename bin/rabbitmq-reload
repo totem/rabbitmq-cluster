@@ -9,29 +9,39 @@ export RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-rabbitmq}
 export RABBITMQ_CLUSTER_NAME=${RABBITMQ_CLUSTER_NAME:-totem}
 
 
-
-if [ ! -f /var/lib/rabbitmq/reset ]; then
-    if $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
-        echo "Initializing seed config..."
-        # Give some time time for startup. (Need better way to handle this.)
-        sleep 10s
-        # Queues beginning with ha.* are highly available
-        rabbitmqctl delete_user guest
-        rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
-        rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all"}'
-        rabbitmqctl add_user ${RABBITMQ_USER} ${RABBITMQ_PASSWORD}
-        rabbitmqctl set_permissions -p / ${RABBITMQ_USER} ".*" ".*" ".*"
-        rabbitmqctl set_user_tags ${RABBITMQ_USER} administrator
-    else
-        rabbitmqctl stop_app
-        rabbitmqctl reset
-        supervisorctl stop rabbitmq-server
-        supervisorctl start rabbitmq-server
-    fi
-    touch /var/lib/rabbitmq/reset
+if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE)" == 'true' ]; then
+  echo "Node is already initialized. Skipping reload."
+  exit 0
 fi
 
-echo "Cluster Initialized...."
+
+if [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)" ==  "$NODE" ]; then
+  # Give some time time for inital startup. (Need better way to handle this.)
+  sleep 15s
+  rabbitmqctl delete_user guest || echo 'Skip deletion of guest account. Probably deleted before.'
+  rabbitmqctl set_cluster_name $RABBITMQ_CLUSTER_NAME
+  rabbitmqctl set_policy ha-all "^ha\." '{"ha-mode":"all", "ha-sync-mode":"automatic"}'
+  rabbitmqctl add_user ${RABBITMQ_USER} ${RABBITMQ_PASSWORD} || echo 'Rabbitmq user already exists'
+  rabbitmqctl set_permissions -p / ${RABBITMQ_USER} ".*" ".*" ".*"
+  rabbitmqctl set_user_tags ${RABBITMQ_USER} administrator
+  echo "Cluster Initialized."
+else
+  if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE false; then
+    echo "Another process is already trying to initialize this node. Skipping initialization"
+    exit 0;
+  fi
+  # Ensure that we are not publishing non-seed node yet.
+  supervisorctl stop publish-node
+  # Give some time time for startup. (Need better way to handle this.)
+  sleep 15s
+  supervisorctl start publish-node
+fi
+
+
+$ETCDCTL set $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$NODE true
+echo "Node Initialized."
+
+
 
 
 
