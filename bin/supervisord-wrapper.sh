@@ -67,7 +67,7 @@ trap 'shutdown' EXIT
 
 if ! $ETCDCTL mk $ETCD_RABBITMQ_BASE/rabbitmq/seed $NODE; then
   seed="$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/seed)"
-  if [ "$seed" != "$NODE"]; then
+  if [ "$seed" != "$NODE" ]; then
     while [ "$($ETCDCTL get $ETCD_RABBITMQ_BASE/rabbitmq/initialized/$seed)" != 'true' ]; do
       echo "Waiting for seed node initialization..."
       sleep 60s
